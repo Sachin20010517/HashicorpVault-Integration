@@ -54,8 +54,10 @@ This guide explains how to set up HashiCorp Vault on an AWS EC2 instance running
    ```
 3. Add the `ubuntu` user to the `docker` group:
    ```bash
-   sudo usermod -aG docker $USER
-   exec su -l $USER
+   sudo -i
+   usermod -aG docker ubuntu
+   su - ubuntu
+   groups
    ```
 
 ### **3.2 Install AWS CLI**
@@ -84,6 +86,30 @@ This guide explains how to set up HashiCorp Vault on an AWS EC2 instance running
    ```bash
    jq --version
    ```
+### **3.3 Install Certbot & Run following Certbot Command ###
+Install certbot:
+   ```bash
+   sudo apt  install certbot
+   ```
+## **Step 4: Obtain SSL Certificates with Certbot**
 
----
+### **4.1 Run Certbot Command**
+1. Run the following command to request a wildcard SSL certificate:
+   ```bash
+   sudo certbot certonly --manual --preferred-challenges=dns --key-type rsa \
+       --email sachinayeshmantha@gmail.com --server https://acme-v02.api.letsencrypt.org/directory \
+       --agree-tos -d *.sachinayeshmantha.live
+   ```
+2. Certbot will prompt you to add a DNS TXT record. Copy the value provided by Certbot.
+
+### **4.2 Add DNS TXT Record in Cloudflare**
+1. Log in to your Cloudflare account and navigate to the DNS settings for your domain.
+2. Add a new **TXT** record:
+   - **Name**: `_acme-challenge`
+   - >Note: Make sure to only copy `_acme-challenge` this part
+   - **Value**: Paste the value provided by Certbot.
+3. Certbot will confirm successful installation, after then make sure to copy this:
+   - **Certificate Path**: `/etc/letsencrypt/live/sachinayeshmantha.live/fullchain.pem`
+   - **Key Path**: `/etc/letsencrypt/live/sachinayeshmantha.live/privkey.pem`
+   >Note: These location will be very crucial, because it is going to be save on Harshicope vault  configuartion
 
